@@ -1,0 +1,23 @@
+{
+  "name": "crous-discord-bot",
+  "version": "1.0.0",
+  "description": "Bot Discord (Node.js) CROUS",
+  "main": "src/index.js",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon --watch src --exec \"node src/index.js\"",
+    "deploy-commands": "node src/deploy-commands.js"
+  },
+  "dependencies": {
+    "axios": "^1.5.0",
+    "cheerio": "^1.0.0-rc.12",
+    "discord.js": "^14.11.0",
+    "dotenv": "^16.6.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}
