@@ -1,0 +1,26 @@
+name: Allume le bot Node.js
+
+on:
+  schedule:
+    # Toutes les 15 minutes de 10h à 12h (UTC) du lundi (1) au samedi (6)
+    - cron: '0,15,30,45 10-11 * * 1-6'    # 10h00 à 11h45
+    - cron: '0,15,30 12 * * 1-6'           # 12h00 à 12h30
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout du code 🛎️
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'  # ou adapte la version souhaitée
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Démarrer le bot
+        run: node ./src/index.js
