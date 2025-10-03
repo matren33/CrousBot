@@ -26,7 +26,8 @@ cd CrousBot
 2. Creation des fichier neccesaire :
 
 Crée le fichier *.env* dans le repertoire racine
-Dans *.nev* :
+
+*.env* :
 - DISCORD_TOKEN (Token de votre bot discord)
 - CLIENT_ID (L'ID de votre bot)
 - GUILD_ID (L'ID de votre serveur discord pour le setup des commandes)
@@ -40,4 +41,11 @@ npm install dotenv
 
 ```bash
 npm run deploy-commands
+```
+
+4. Lancer le bot :
+
+dans le repertoire racine :
+```bash
+node .\src\index.js
 ```
