@@ -8,27 +8,42 @@ function formatMenu(rawText) {
   let currentChain = null;
 
   for (const line of lines) {
-    // On capture CHAINE X + son nom, et on sépare du reste
-    const match = line.match(/^•?\s*(CHAINE\s*\d+\s*:\s*[^•\d]+)(.*)$/i);
+    // Capture CHAINE X ou CHAINE MAC X + son nom
+    const match = line.match(/^•?\s*(CHAINE(?:\s*MAC)?\s*\d+\s*:?)\s*(Traditionnelle|friterie|Entrée \/ plat en barquette à réchauffer \/ dessert)?/i);
 
     if (match) {
       if (currentChain) menu.push(currentChain);
 
-      const title = match[1].trim(); // "CHAINE 1 : Traditionnelle"
-      const rest = match[2].trim();  // "Entrées variées Tomato fish ..."
-
+      // Compose title with chain and type if present
+      const title = match[1].trim() + (match[2] ? ` ${match[2].trim()}` : '');
       currentChain = { title, items: [] };
-
-      if (rest) {
-        // On découpe bien le reste en éléments séparés
-        const parts = rest.split(/(?<=\w)\s+(?=[A-ZÉÈÎÔÙÂÊÎÔÛ])/); 
-        currentChain.items.push(...parts.map(p => p.trim()));
-      }
-    } else {
-      if (currentChain) {
-        currentChain.items.push(line.replace(/^•\s*/, '').trim());
-      }
+      continue;
     }
+
+    // Split line into items, handling "Ou"/"ou" and "Accompagnés de"
+    let item = line.replace(/^•\s*/, '').trim();
+
+    // Replace "Ou"/"ou" with "ou" and split if needed
+    if (/^Ou\b/i.test(item)) {
+      item = item.replace(/^Ou\b/i, 'ou');
+    }
+
+    // Split "StrogonoffOuAiguillette blé emmental" to "Strogonoff ou aiguillette blé emmental"
+    item = item.replace(/([a-zéèêîôûàâäëïöüç])Ou([A-ZÉÈÊÎÔÛÀÂÄËÏÖÜÇ])/g, '$1 ou $2');
+
+    // Split "Accompagnés de coquillettes, piperade" to separate items
+    if (/^Accompagnés de\b/i.test(item)) {
+      const parts = item.replace(/^Accompagnés de\b/i, '').split(',');
+      parts.forEach(p => currentChain && currentChain.items.push(p.trim()));
+      continue;
+    }
+
+    // // Add separator for clarity if needed
+    // if (/^Desserts lactés ou fruits$/i.test(item) || /^Entrées variées$/i.test(item)) {
+    //   if (currentChain && currentChain.items.length) currentChain.items.push('');
+    // }
+
+    if (currentChain) currentChain.items.push(item);
   }
 
   if (currentChain) menu.push(currentChain);
@@ -76,7 +91,7 @@ module.exports = {
       await dateSelection.deferUpdate();
 
       // Scraping du menu
-      const { text, image } = await scrapeMenu(url, chosenDate); // ⚠️ scrapeMenu doit gérer la date
+      const { text, image } = await scrapeMenu(url, chosenDate);
       if (!text) return interaction.editReply('⚠️ Impossible de trouver le menu.');
 
       const structured = formatMenu(text);
