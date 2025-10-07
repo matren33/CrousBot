@@ -1,15 +1,13 @@
-name: Envoi automatique du menu CROUS
+name: Envoi du menu Discord
 
 on:
   schedule:
-    # 09h00 UTC = 11h00 France
-    - cron: '0 9 * * 1-6'
-  workflow_dispatch:  # Manuelle
+    - cron: '0 9 * * 1-6' # 11h00 heure de France (9h UTC)
+  workflow_dispatch:
 
 jobs:
-  send-menu:
+  run-bot:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout du code 🛎️
         uses: actions/checkout@v4
@@ -22,9 +20,18 @@ jobs:
       - name: Installer les dépendances
         run: npm ci
 
-      - name: Envoyer le menu sur Discord
+      - name: Vérifier la variable BOT_TOKEN
+        run: |
+          if [ -z "$BOT_TOKEN" ]; then
+            echo "❌ BOT_TOKEN est vide !"
+            exit 1
+          else
+            echo "✅ BOT_TOKEN chargé."
+          fi
         env:
-          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
-          DISCORD_CHANNEL_ID: ${{ secrets.DISCORD_CHANNEL_ID }}
-          RESTO_URL: https://www.crous-bordeaux.fr/restaurant/resto-u-n2-3/
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+
+      - name: Exécuter le bot Discord
+        env:
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
         run: node ./src/autoSend.js
