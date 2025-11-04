@@ -90,8 +90,16 @@ module.exports = {
       const chosenDate = dateSelection.values[0];
       await dateSelection.deferUpdate();
 
-      // Scraping du menu
-      const { text, image } = await scrapeMenu(url, chosenDate);
+      // Try scrap menu
+      try {
+        const { text, image } = await scrapeMenu(url, chosenDate);
+      }
+
+      // Catch to handle errors during scraping
+      catch (error) {
+        await interaction.reply("⚠️ Impossible de récupérer le menu actuellement. Le site du CROUS est trop lent ou indisponible.");
+      }
+
       if (!text) return interaction.editReply('⚠️ Impossible de trouver le menu.');
 
       const structured = formatMenu(text);

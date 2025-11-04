@@ -1,6 +1,12 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 const urlModule = require('url');
+import axiosRetry from "axios-retry";
+
+axiosRetry(axios, {
+  retries: 5,               // Jusqu'à 5 tentatives
+  retryDelay: retryCount => retryCount * 2000 // attendre 2s, 4s, 6s...
+});
 
 const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
 let cache = {
@@ -10,7 +16,14 @@ let cache = {
 };
 
 async function fetchHtml(url) {
-  const resp = await axios.get(url, { timeout: 10000, headers: { 'User-Agent': 'crous-discord-bot/1.0' } });
+  const resp = await axios.get(url, {
+    timeout: 15000, // 15 secondes
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+      'Accept-Language': 'fr-FR,fr;q=0.9'
+    }
+  });
+
   return resp.data;
 }
 
